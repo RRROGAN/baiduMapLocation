@@ -1,0 +1,6 @@
+Hello,#{nickname} <br/>
+Your password has been reset, 
+your new password is <b>#{password}</b>, please modify your password soon.<br/>
+Please do not reply to this email with your password.
+ We will never ask for your password, 
+ and we strongly discourage you from sharing it with anyone.

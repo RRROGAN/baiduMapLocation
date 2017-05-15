@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jee="http://www.springframework.org/schema/jee" 
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/util
+            http://www.springframework.org/schema/util/spring-util.xsd
+            http://www.springframework.org/schema/task
+            http://www.springframework.org/schema/task/spring-task.xsd"
+            >
+     <context:component-scan base-package="org.rogan.map" /> 
+     <util:properties id="dbConfig" location="classpath:application.properties" />
+    <context:property-placeholder properties-ref="dbConfig"/>
+      <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${db_map.jdbc.driver}" />
+        <property name="url" value="${db_map.url}" />
+        <property name="username" value="${db_map.username}" />
+        <property name="password" value="${db_map.password}" />
+        <property name="initialSize" value="0" />
+        <property name="maxActive" value="5" />
+        <property name="minIdle" value="0" />
+        <property name="maxWait" value="60000" />
+        <property name="testWhileIdle" value="true" />
+        <property name="timeBetweenEvictionRunsMillis" value="290000" />
+        <property name="validationQuery" value="select 1" />
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    	<property name="dataSource" ref="dataSource"></property>
+<!--     	<property name="mapperLocations" value="classpath:org/rogan/map/dao/*.xml"></property>
+ -->    	<property name="configLocation" value="classpath:mybatis.xml"></property>
+    </bean>
+    <bean  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    	<property name="basePackage" value="org.rogan.map.dao"></property>
+    </bean>
+    <bean id = "methodTimeInterceptor" class="org.rogan.map.util.MethodTimeInterceptor">
+    </bean>
+    <aop:config>
+       <aop:advisor advice-ref="methodTimeInterceptor" pointcut="execution(* *..service..*(..))"/>
+    </aop:config>
+</beans>
