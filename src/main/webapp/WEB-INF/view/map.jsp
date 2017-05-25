@@ -11,15 +11,15 @@
     <link href="${ctx}/static/js/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="${ctx}/static/js/animate.css"  rel="stylesheet" type="text/css"/>
     <link href="${ctx}/static/js/bootstrap/css/bootstrapValidator.min.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=oXppg9ZuPvRfUHGNXuHIEyqt"></script>
-    <script type="text/javascript" src="http://api.map.baidu.com/library/TrafficControl/1.4/src/TrafficControl_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=pz2MsEP5ajlNGi0qfxdzZHzM447IBfkK
+"></script>
     <script language="javascript" src="${ctx}/static/js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="${ctx}/static/js/bootstrap-notify.min.js"></script>
     <script type="text/javascript" src="${ctx}/static/js/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="${ctx}/static/js/bootstrap/js/bootstrapValidator.min.js"></script>
     <script type="text/javascript" src="${ctx}/static/js/cookie_util.js"></script>
     <script type="text/javascript" src="${ctx}/static/js/stylelist.js"></script>
-
+	<script type="text/javascript" src="http://api.map.baidu.com/library/TrafficControl/1.4/src/TrafficControl_min.js"></script>
 <style type="text/css">
 html {
     height: 100%
@@ -142,9 +142,12 @@ margin:0;
     border-radius: 0 2px 2px 0;
     box-shadow: 1px 2px 1px rgba(0,0,0,.15);
 }
+
 </style>
 <script type="text/javascript">
     $(function(){
+    	
+    	 init();
     	//初始化模板选择的下拉框
     	var sel = document.getElementById('stylelist');
     	for(var key in mapstyles){
@@ -152,8 +155,6 @@ margin:0;
     		var item = new  Option(style.title,key);
     		sel.options.add(item);
     	}
-
-        init();
        /*  var transit = new BMap.TransitRoute(map, {
     		renderOptions: {map: map, panel: "r-result"}
     	});
@@ -167,8 +168,8 @@ margin:0;
     //创建地图函数
     function createMap() {
     	var map = new BMap.Map("map");
-        var point = new BMap.Point(116.331398,39.897445);
-    	map.centerAndZoom(point,12);
+        var point = new BMap.Point(112.24186581,30.33259052);
+       map.centerAndZoom(point,12);
 		window.map = map;  //将map变量存储为全局变量
     }
     //设置地图事件
@@ -222,18 +223,24 @@ margin:0;
     	setMapEvent();
     	addMapControl();
     	autocomplete();
-           var geolocation = new BMap.Geolocation();
+            var geolocation = new BMap.Geolocation();
              geolocation.getCurrentPosition(function(r){
                  if(this.getStatus() == BMAP_STATUS_SUCCESS){
                      var mk = new BMap.Marker(r.point);
+                     var point = new BMap.Point(r.point.lng,r.point.lat);
+                    map.centerAndZoom(point,12);
                      map.addOverlay(mk);
                      map.panTo(r.point);
-                     alert('您的位置：'+r.point.lng+','+r.point.lat);
+                     var bs = map.getBounds();
+                     var bssw = bs.getSouthWest();
+                     var bsne = bs.getNorthEast();
+                     console.info("当前地图可视化区域：" + bssw.lng + "," 
+                    		 	+ bssw.lat + "到" + bsne.lng + "," + bsne.lat);
                  }
                  else {
                      alert('failed'+this.getStatus());
                  }        
-             },{enableHighAccuracy: true}) 
+             },{enableHighAccuracy: true})  
            // 添加定位控件
             var geolocationControl = new BMap.GeolocationControl(); //在左下角
            geolocationControl.addEventListener("locationSuccess", function(e){
@@ -245,7 +252,7 @@ margin:0;
              address += e.addressComponent.district;
              address += e.addressComponent.street;
              address += e.addressComponent.streetNumber;
-             alert("当前定位地址为：" + address);   //无法定位到当前位置 将百度地图API中的示例原样复制 也获取不到准确地址 暂且不管
+             //alert("当前定位地址为：" + address);   //无法定位到当前位置 将百度地图API中的示例原样复制 也获取不到准确地址 暂且不管
            });
            geolocationControl.addEventListener("locationError",function(e){
              // 定位失败事件
@@ -279,7 +286,16 @@ margin:0;
     			{"input" : "suggestId"
     			,"location" : map
     		});
-
+    	var ac2 = new BMap.Autocomplete(    //建立一个自动完成的对象
+    			{"input" : "suggestId2"
+    			,"location" : map
+    		});
+    	
+    	var ac3 = new BMap.Autocomplete(    //建立一个自动完成的对象
+        			{"input" : "suggestId3"
+            			,"location" : map
+            		});
+    	
     		ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
     		var str = "";
     			var _value = e.fromitem.value;
@@ -306,13 +322,22 @@ margin:0;
     			setPlace();
     		});	
     }
+    	var addr = null;
 		function setPlace(){
 			map.clearOverlays();    //清除地图上所有覆盖物
 			function myFun(){
-				var addr = local.getResults().getPoi(0);
+				 addr = local.getResults().getPoi(0);
 				console.info(addr);
 				var pp = addr.point;    //获取第一个智能搜索的结果
-				map.centerAndZoom(pp, 18);
+				map.centerAndZoom(pp, 12);
+				var bs = map.getBounds();
+                var bssw = bs.getSouthWest();
+                var bsne = bs.getNorthEast();
+                console.info("当前地图可视化区域：" + bssw.lng + "," 
+               		 	+ bssw.lat + "到" + bsne.lng + "," + bsne.lat);
+                var bound = {"lng1":bssw.lng,"lng2":bsne.lng,
+                				"lat1":bssw.lat,"lat2":bsne.lat};
+                 setInterval(_randomLngLat(bound) ,5000);
 				//创建右键菜单
 				var markerMenu=new BMap.ContextMenu();
 				markerMenu.addItem(new BMap.MenuItem('收藏',function(){
@@ -333,6 +358,7 @@ margin:0;
 				})); */
 				var marker = new BMap.Marker(pp);
 				marker.addContextMenu(markerMenu);
+				marker.flag = 1;
 				map.addOverlay(marker);    //添加标注
 			}
 			var local = new BMap.LocalSearch(map, { //智能搜索
@@ -340,6 +366,35 @@ margin:0;
 			});
 			local.search(myValue);
 		}
+		
+function _randomLngLat(bound){ 
+		       return function(){ 
+		    	   randomLngLat(bound); 
+		       } 
+		} 
+function randomLngLat(bound) {
+	$.post("${ctx}/favorite/locate",bound,
+			function(r) {
+			if (r.code == '100200') {
+				console.info(addr.point);
+				var overlays = map.getOverlays();
+				console.info("length:" + overlays.length);
+				for (var j = 0; j < overlays.length - 20; j++) {
+					if (!addr.point.equals(overlays[j].point)) {
+						map.removeOverlay(overlays[j]);
+					}
+				}
+				  for (var i = 0; i < r.data.count; i++) {
+					var point =  new BMap.Point(r.data.data[i][0],r.data.data[i][1]);
+					var marker = new BMap.Marker(point);
+					marker.flag = 1;
+					map.addOverlay(marker); 
+					marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+				}  
+				  
+			}
+	});
+}
 </script>
 </head>
 <body >
@@ -367,8 +422,8 @@ margin:0;
 <ul id="myTab" class="nav nav-tabs" >
    <li class="active"><a href="#point" data-toggle="tab" >
      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;地点&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
-   <li><a href="#route" data-toggle="tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;线路&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
-   <li><a href="javascript:void 0" id="close">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
+<!--    <li><a href="#route" data-toggle="tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;线路&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
+ -->   <li><a href="javascript:void 0" id="close">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
    
 </ul>
 <div id="myTabContent" class="tab-content">
@@ -396,19 +451,45 @@ margin:0;
 	</ul>
 	</div>		
    </div>
-   <div class="tab-pane fade" id="route">
-      <p>iOS is a mobile operating system developed and distributed by Apple 
-         Inc. Originally released in 2007 for the iPhone, iPod Touch, and 
-         Apple TV. iOS is derived from OS X, with which it shares the 
-         Darwin foundation. iOS is Apple's mobile version of the 
-         OS X operating system used on Apple computers.</p>
-   </div>
+   <!-- <div class="tab-pane fade" id="route">
+      <p></p>
+   </div> -->
 </div>
 </div>
 <div  style="z-index: 2;left:70px;top:20px;position: absolute;">
- 请输入: <input type="text" id="suggestId" maxlength="256" placeholder="搜地点、查公交、找路线" value="" style="width:250px;" />
+ <input type="text" id="suggestId" maxlength="256" placeholder="搜地点..." value="" style="width:250px;" />
  </div>
-  <div id="r-result" style="z-index: 2;left:120px;top:50px;position: absolute;"></div>
+ <div id="routeDiv" style="z-index: 2;left:70px;top:20px;position: absolute;display:none">
+ <input type="text" id="suggestId2" maxlength="256" placeholder="输入起点..."
+ 				 value="" style="width:250px;" />
+ 		
+ 	 	
+ 
+ <br/> <input type="text" id="suggestId3" maxlength="256" placeholder="输入终点..."
+ 				 value="" style="width:250px;margin-top:10px;" />
+
+ <img id="searchImg" src="${ctx}/static/img/search.png" style="position:absolute;z-index:1;
+  				width:37px;height:26px;display: inline;top:36px;left:304px;"
+ />	
+ <select id="routeSel" style="height:26px;">
+			<option value="0">公交</option>
+			<option value="1">驾车</option>
+			<option value="2">步行</option>
+		</select>  
+	  
+	<!--  <select id="way" style="height:26px;">
+			<option value="0">最少时间</option>
+			<option value="1">最短距离</option>
+			<option value="2">避开高速</option>
+		</select> -->
+
+ </div>
+  
+  <img id="toggerRouteDiv" src="${ctx}/static/img/route.png" style="position:absolute;z-index:1;
+  				width:37px;height:26px;display: inline;left:360px;top:19px;"
+ /> 
+  
+  <div id="r-result" style="z-index: 2;left:70px;top:85px;position: absolute;width:300px" ></div>
  <div id="map">
  </div> 
  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog"  aria-hidden="true">
@@ -450,12 +531,12 @@ margin:0;
                       </label>  
                       <span style="color:red" id="tipMsg"></span>
                      </div> 
-                     <span>其他账号登录<br/> 
+                     <!-- <span>其他账号登录<br/> 
                      <a target="_blank" href="https://graph.qq.com/oauth2.0/authorize?response_type=code&amp;client_id=100571486&amp;redirect_uri=https%3A%2F%2Fid.amap.com%2Findex%2Fqq%3Fpassport%3D1" hover="qq" actions="click:loginByQQ">
                     QQ登录</a>
                     <a href="https://api.weibo.com/oauth2/authorize?client_id=884965267&amp;redirect_uri=https%3A%2F%2Fid.amap.com%2Findex%2Fweibo%3Fpassport%3D1" hover="sina" actions="click:loginBySina">
                                 新浪微博登录</a>
-                   </span>
+                   </span> -->
                    </form>
             </div>
             <div class="modal-footer" >
@@ -715,6 +796,8 @@ $(document).ready(function() {
 		   }
 	   });
 	   $("#detail_info").hide("slow");
+	   $("#routeDiv").hide();
+	   $("#suggestId").show();
 	   $("#favoritePanel").animate({
 		   height: 'toggle', opacity: 'toggle'
 	   }, "slow");
@@ -734,6 +817,93 @@ $(document).ready(function() {
 		 });
    });
    
+   $("#toggerRouteDiv").click(function() {
+	   console.info("xxx");
+	   $("#favoritePanel").hide();
+	   $("#suggestId").toggle();
+	   $("#routeDiv").toggle();
+	   $("#suggestId2").val("");
+	   $("#suggestId3").val("");
+	   
+   });
+   
+   $("#searchImg").click(function() {
+	  // if ()
+	 //  setPlace();
+	  var overlays = map.getOverlays();
+	   for(var i = 0; i < overlays.length; i++) {
+		 console.info(overlays[i].flag);
+		 if ( overlays[i].flag == undefined) {
+			 map.removeOverlay(overlays[i]);
+		 }
+	 }
+	   var sId2 = $("#suggestId2").val();
+	   var sId3 = $("#suggestId3").val();
+	   var routeSelValue = $("#routeSel").val();
+	   if (sId2 == "" || sId2 == null) {
+		   $("#suggestId2").focus();
+		   return;
+	   }
+	   if (sId3 == "" || sId3 == null) {
+		   $("#suggestId3").focus();
+		   return;
+	   }
+	   getRouteBySel(sId2,sId3,routeSelValue);
+	   $("#r-result").show();
+	   
+   });
+  
+   function getRouteBySel(start_posi, end_posi, routeSelValue) {
+	   if (routeSelValue == 0 || routeSelValue == '0') {
+		   transitRoute(start_posi, end_posi);
+	   }
+		if (routeSelValue == 1 || routeSelValue == '1') {
+			driverRoute(start_posi, end_posi);
+			   }
+		if (routeSelValue == 2 || routeSelValue == '2') {
+			walkingRoute(start_posi, end_posi);
+		}
+   }
+   //驾车路线
+   function driverRoute(start_posi, end_posi) {
+	   
+	   var routePolicy = [BMAP_DRIVING_POLICY_LEAST_TIME,
+	                      BMAP_DRIVING_POLICY_LEAST_DISTANCE,
+	                      BMAP_DRIVING_POLICY_AVOID_HIGHWAYS];
+	   
+	   
+	  	var output = "从" + start_posi + "到" + end_posi + "驾车需要";
+		var searchComplete = function (results){
+			if (transit.getStatus() != BMAP_STATUS_SUCCESS){
+				return ;
+			}
+			var plan = results.getPlan(0);
+			output += plan.getDuration(true) + "\n";                //获取时间
+			output += "总路程为：" ;
+			output += plan.getDistance(true) + "\n";             //获取距离
+		}
+		 var transit = new BMap.DrivingRoute(map, {renderOptions: {map: map,panel: "r-result",enableDragging : true },
+			 policy: routePolicy[2],
+			onSearchComplete: searchComplete
+		});
+		transit.search(start_posi,end_posi);
+	  }
+   //公交路线
+   function transitRoute(start_posi, end_posi) {
+	   var routePolicy = [BMAP_TRANSIT_POLICY_LEAST_TIME,
+	                      BMAP_TRANSIT_POLICY_LEAST_TRANSFER,
+	                      BMAP_TRANSIT_POLICY_LEAST_WALKING,
+	                      BMAP_TRANSIT_POLICY_AVOID_SUBWAYS];
+	   var transit = new BMap.TransitRoute(map, {
+			renderOptions: {map: map, panel: "r-result",enableDragging : true}
+		});
+		transit.search(start_posi, end_posi);
+   }
+   //步行路线
+   function walkingRoute(start_posi, end_posi) {
+		var walking = new BMap.WalkingRoute(map, {renderOptions: {map: map, panel: "r-result", autoViewport: true,enableDragging : true}});
+		walking.search(start_posi, end_posi);
+   }
    //登录
    $("#login").click(function(){
 	   var obj = $("#loginForm").serialize();
@@ -872,7 +1042,7 @@ function rename(id) {
 		$("#renameModal").modal("hide");
 	}); */
 }
-//删除收藏
+//取消收藏
 function del(id) {
 	$("#delModal").modal("show");
 	$("#del").click(function() {
@@ -888,6 +1058,14 @@ function del(id) {
 function closePanel() {
 	 $("#favoritePanel").hide("slow");
 	 $("#detail_info").hide("slow");
+	 $("#r-result").hide("slow");
+	 var overlays = map.getOverlays();
+	 for(var i = 0; i < overlays.length; i++) {
+		 console.info(overlays[i].flag);
+		 if ( overlays[i].flag == undefined) {
+			 map.removeOverlay(overlays[i]);
+		 }
+	 }
 }
 
 //清空表单

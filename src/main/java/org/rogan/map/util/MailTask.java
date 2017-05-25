@@ -92,7 +92,8 @@ public class MailTask implements Runnable{
 
 	public  void sendMail() throws MessagingException, IOException{
 		Properties props = System.getProperties();
-		InputStream is = MailTask.class.getClassLoader().getResourceAsStream("mail.properties");
+		InputStream is = MailTask.class.getClassLoader()
+				.getResourceAsStream("mail.properties");
 		props.load(is);
 		Authenticator auth = new Authenticator() {
 			@Override
@@ -112,9 +113,7 @@ public class MailTask implements Runnable{
 		String content = CommonUtils.readMailTemplate(MailTask.class, path, nickname, pwd);
 		mm.setContent(content, ConfigConsts.CONTENT_TYPE);
 		Transport.send(mm);
-		
 	}
-
 	public void run() {
 		try {
 			//6s之后发送电子邮件

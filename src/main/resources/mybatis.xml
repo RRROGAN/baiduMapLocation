@@ -18,14 +18,15 @@
 		<setting name="jdbcTypeForNull" value="OTHER" />
 		<setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString" />
 	</settings>
+	<!-- 配置实体类的别名，在mapper映射文件中就不用写类的全路径，而用别名代替，简化配置-->
 	<typeAliases>
 		<typeAlias type="org.rogan.map.entity.User" alias="user"/>
 		<typeAlias type="org.rogan.map.entity.Favorite" alias="favorite"/>
 	</typeAliases>
-	<mappers>
+	<!-- 配置mapper映射文件的路径，让mybatis.xml配置文件找到对应的mapper文件 -->
+		<mappers>
 			<mapper resource="org/rogan/map/dao/UserMapper.xml"/>
 			<mapper resource="org/rogan/map/dao/FavoriteMapper.xml"/>
-			
 		</mappers>	
 <!-- 	<plugins> -->
 <!-- 		<plugin interceptor="com.skyhotel.rentcompany.framework.baseutil.page.PagePlugin"> -->

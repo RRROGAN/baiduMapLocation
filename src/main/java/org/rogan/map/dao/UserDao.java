@@ -14,7 +14,8 @@ import org.springframework.stereotype.Repository;
 public interface UserDao
 {
 
-  public User getUserByNameAndPwd(@Param("login_name") String name, @Param("password") String passwd);
+  public User getUserByNameAndPwd(@Param("login_name") String name,
+		  @Param("password") String passwd);
 
   public User getUserByName(String username);
 

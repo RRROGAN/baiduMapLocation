@@ -9,22 +9,27 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  <!-- 配置Spring的前端控制器DispatcherServlet -->
     <servlet>
     <servlet-name>dispatcherServlet</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <!-- 配置该Servlet的初始化参数 -->
     <init-param>
       <param-name>contextConfigLocation</param-name>
       <param-value>classpath:spring-mvc.xml</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
+  <!-- 配置该Servlet的映射路径，表示所有请求都转交给dispatcherServlet处理 -->
   <servlet-mapping>
     <servlet-name>dispatcherServlet</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
+  <!-- 配置Spring监听，web容器启动时同时启动Spring容器 -->
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
+  <!-- 配置web应用的全局参数 -->
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>classpath:applicationContext.xml</param-value>

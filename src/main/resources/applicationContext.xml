@@ -26,9 +26,12 @@
             http://www.springframework.org/schema/task
             http://www.springframework.org/schema/task/spring-task.xsd"
             >
+      <!-- 配置Spring组件扫描，凡是类上写了诸如@Controller，@Service，@Dao注解的类都会归Spring容器管理 -->
      <context:component-scan base-package="org.rogan.map" /> 
+     <!-- 引入类路径下的application.properties数据库配置文件 -->
      <util:properties id="dbConfig" location="classpath:application.properties" />
     <context:property-placeholder properties-ref="dbConfig"/>
+    <!-- 配置数据库连接的数据源 -->
       <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
         <property name="driverClassName" value="${db_map.jdbc.driver}" />
         <property name="url" value="${db_map.url}" />
@@ -42,11 +45,12 @@
         <property name="timeBetweenEvictionRunsMillis" value="290000" />
         <property name="validationQuery" value="select 1" />
     </bean>
+    <!-- 配置与数据库的连接会话， SqlSessionFactoryBean,该类需要注入dataSource和configLocation两个属性-->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
     	<property name="dataSource" ref="dataSource"></property>
-<!--     	<property name="mapperLocations" value="classpath:org/rogan/map/dao/*.xml"></property>
- -->    	<property name="configLocation" value="classpath:mybatis.xml"></property>
+   		<property name="configLocation" value="classpath:mybatis.xml"></property>
     </bean>
+    <!-- 配置mapper文件扫描，配置之后会将org.rogan.map.dao包下的所有接口视为mapper接口-->
     <bean  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
     	<property name="basePackage" value="org.rogan.map.dao"></property>
     </bean>

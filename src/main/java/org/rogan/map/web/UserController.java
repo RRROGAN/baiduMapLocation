@@ -72,7 +72,6 @@ public class UserController extends BaseController
     	    		return res;
     	    	}
     	    }
-    	
     	User user = this.userService.login(username, passwd);
     	user.setLast_visit(DateUtils.getSysTimestamp());
     	user.setLogin_count(user.getLogin_count() + 1);
@@ -113,7 +112,7 @@ public class UserController extends BaseController
 	} catch (Exception e) {
 		logger.error(e.getMessage(), e);
 		return ResponseMsg.err(e.getMessage());
-		}
+		}    
   }
   
   /**

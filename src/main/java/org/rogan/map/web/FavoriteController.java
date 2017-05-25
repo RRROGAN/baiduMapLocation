@@ -1,15 +1,21 @@
 package org.rogan.map.web;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.rogan.map.base.BaseController;
 import org.rogan.map.entity.Favorite;
 import org.rogan.map.entity.ResponseMsg;
 import org.rogan.map.entity.User;
 import org.rogan.map.serviceImpl.FavoriteServiceImpl;
+import org.rogan.map.util.RandomLngLat;
 import org.rogan.map.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -90,11 +96,13 @@ public class FavoriteController extends BaseController{
 	@ResponseBody
 	public ResponseMsg listFavorite(HttpServletRequest request, String uid) {
 		if (StringUtils.isBlank(uid)) {
-			return null;
+			return null; 
 		}
 		try {
 			List<Favorite> list = favoriteService.listFavorite(uid);
-			request.getSession().setAttribute("favList",list);
+			HttpSession session = request.getSession();
+			session.removeAttribute("favList");
+			session.setAttribute("favList",list);
 			for (Favorite favorite : list) {
 				System.out.println(favorite.getStart_detail_posi());
 			}
@@ -105,5 +113,30 @@ public class FavoriteController extends BaseController{
 		}
 	
 	}
-	
+	//在给定区域内随机生成经纬度
+	@RequestMapping("/locate")
+	@ResponseBody
+	public ResponseMsg locate(HttpServletRequest request,
+			@RequestParam("lng1") String lng1,
+			@RequestParam("lng2") String lng2,
+			@RequestParam("lat1") String lat1,
+			@RequestParam("lat2") String lat2) {
+		Random r = new Random();
+		int temp = r.nextInt(20);
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<String[]> list = new ArrayList<String[]>();
+		String[] array = null;
+		try {
+			for (int i = 0; i < temp; i++) {
+				array = RandomLngLat.randomLngLat(lng1, lng2, lat1, lat2);
+				list.add(array);
+			}
+			map.put("count", temp);
+			map.put("data", list);
+			return ResponseMsg.ok("", map);
+		} catch (Exception e) {
+			return ResponseMsg.err(e.getMessage());
+		}
+		
+	}	
 }
